@@ -2,11 +2,13 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  Index,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
 
 @Entity()
+@Index(['title', 'released', 'genre', 'director'], { unique: true })
 export class Movie {
   @PrimaryGeneratedColumn()
   id: number;
