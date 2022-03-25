@@ -1,4 +1,4 @@
-version: '2.4'
+version: '3.8'
 services:
   dev:
     container_name: ${DEV_CONTAINER_NAME}
@@ -13,6 +13,7 @@ services:
     links:
       - db
       - phpmyadmin
+      - auth
     command: npm run start:debug
     ports:
       - ${APP_PORT}:3000
@@ -25,6 +26,7 @@ services:
       - ${APP_PORT}:3000
     depends_on:
       - db
+      - auth
     links:
       - db
       - phpmyadmin
@@ -33,6 +35,19 @@ services:
       - .:/usr/src/app
       - ./node_modules:/usr/src/app/node_modules
       - ./dist:/usr/src/app/dist
+
+  auth:
+    container_name: ${AUTH_CONTAINER_NAME}
+    command: node src/server.js
+    build:
+      context: .
+      dockerfile: ./auth-service/Dockerfile
+    ports:
+      - ${AUTH_PORT}:3000
+    volumes:
+      - ./auth-service:/app/
+    environment:
+      JWT_SECRET: ${JWT_SECRET}
 
   db:
     image: library/mysql:${MYSQL_VERSION}

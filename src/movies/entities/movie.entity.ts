@@ -16,6 +16,9 @@ export class Movie {
   @Column()
   title: string;
 
+  @Column()
+  email: string;
+
   @Column('datetime')
   released: Date;
 
