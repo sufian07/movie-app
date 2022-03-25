@@ -1,0 +1,58 @@
+version: '2.4'
+services:
+  dev:
+    container_name: ${DEV_CONTAINER_NAME}
+    build: .
+    env_file: .env
+    volumes:
+      - .:/usr/src/app
+      - ./node_modules:/usr/src/app/node_modules
+      - ./dist:/usr/src/app/dist
+    depends_on:
+      - db
+    links:
+      - db
+      - phpmyadmin
+    command: npm run start:debug
+    ports:
+      - ${APP_PORT}:3000
+
+  prod:
+    container_name: ${PROD_CONTAINER_NAME}
+    build: .
+    env_file: .env
+    ports:
+      - ${APP_PORT}:3000
+    depends_on:
+      - db
+    links:
+      - db
+      - phpmyadmin
+    command: npm run start:prod
+    volumes:
+      - .:/usr/src/app
+      - ./node_modules:/usr/src/app/node_modules
+      - ./dist:/usr/src/app/dist
+
+  db:
+    image: library/mysql:${MYSQL_VERSION}
+    container_name: ${DATABASE_CONTAINER_NAME}
+    restart: always
+    command: --default-authentication-plugin=mysql_native_password
+    environment:
+      - MYSQL_ROOT_PASSWORD=${DB_PASSWORD}
+      - MYSQL_DATABASE=${DB_NAME}
+      - TERM=meh
+    volumes:
+      - ${DATABASE_VOLUME_MOUNT}:/var/lib/mysql
+
+  phpmyadmin:
+    image: library/phpmyadmin:latest
+    container_name: ${PHPMYADMIN_CONTAINER_NAME}
+    environment:
+      - MYSQL_ROOT_PASSWORD=${DB_PASSWORD}
+      - PMA_HOST=${DATABASE_CONTAINER_NAME}
+    depends_on:
+      - db
+    ports:
+      - ${PHPMYADMIN_PORT}:80
