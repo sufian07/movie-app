@@ -1,4 +1,8 @@
-import { Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import axios from 'axios';
 import { OmdbDto } from '../dto/omdb.dto';
@@ -13,7 +17,13 @@ export class OmdbService {
     const res = await axios.get(url, {
       params: { apikey, type: 'movie', t },
     });
-    const { Title, Released, Genre, Director } = res.data;
+    const { Title, Released, Genre, Director, Error } = res.data;
+    if (!Title) {
+      if (Error) {
+        throw new BadRequestException(Error);
+      }
+      throw new NotFoundException('Movie not found');
+    }
     return { Title, Released, Genre, Director };
   }
 }

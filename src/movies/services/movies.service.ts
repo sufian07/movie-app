@@ -1,7 +1,12 @@
-import { Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Payload } from 'src/auth/interfaces/payload.interface';
-import { Repository } from 'typeorm';
+import { Between, Repository } from 'typeorm';
+import * as moment from 'moment';
 import { CreateDto } from '../dto/movies.dto';
 import { OmdbDto } from '../dto/omdb.dto';
 import { Movie } from '../entities/movie.entity';
@@ -16,7 +21,25 @@ export class MoviesService {
   ) {}
 
   async create(user: Payload, dto: CreateDto): Promise<Movie> {
-    const { userId } = user;
+    const { userId, role } = user;
+    if (role !== 'basic' && role !== 'premium') {
+      throw new UnauthorizedException('You do not have proper permissions');
+    }
+    if (role === 'basic') {
+      const start = moment().startOf('month').toDate();
+      const end = moment().endOf('month').toDate();
+      const count = await this.movieRepository.count({
+        where: {
+          userId,
+          created_at: Between(start, end),
+        },
+      });
+      if (count > 4) {
+        throw new BadRequestException(
+          'You have created 5 movie this month. To create more movie please upgrade to premium',
+        );
+      }
+    }
     const movie: OmdbDto = await this.omdbService.get(dto.title);
     let createdMovie: Movie;
     const { Title: title, Released, Genre: genre, Director: director } = movie;
@@ -42,7 +65,8 @@ export class MoviesService {
     return createdMovie;
   }
 
-  async list(): Promise<Movie[]> {
-    return this.movieRepository.find();
+  async list(user: Payload): Promise<Movie[]> {
+    const { userId } = user;
+    return this.movieRepository.find({ where: { userId } });
   }
 }

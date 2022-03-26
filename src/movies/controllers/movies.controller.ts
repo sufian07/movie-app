@@ -15,8 +15,9 @@ export class MoviesController {
     return this.moviesService.create(request.user, dto);
   }
 
+  @UseGuards(JwtAuthGuard)
   @Get()
-  async list(): Promise<Movie[]> {
-    return this.moviesService.list();
+  async list(@Req() request): Promise<Movie[]> {
+    return this.moviesService.list(request.user);
   }
 }
