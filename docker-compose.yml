@@ -1,7 +1,7 @@
-version: '2.4'
+version: '3.8'
 services:
-  dev:
-    container_name: ${DEV_CONTAINER_NAME}
+  main:
+    container_name: ${APP_CONTAINER_NAME}
     build: .
     env_file: .env
     volumes:
@@ -13,26 +13,23 @@ services:
     links:
       - db
       - phpmyadmin
-    command: npm run start:debug
+      - auth
+    command: npm run start:dev
     ports:
       - ${APP_PORT}:3000
 
-  prod:
-    container_name: ${PROD_CONTAINER_NAME}
-    build: .
-    env_file: .env
+  auth:
+    container_name: ${AUTH_CONTAINER_NAME}
+    command: node src/server.js
+    build:
+      context: .
+      dockerfile: ./auth-service/Dockerfile
     ports:
-      - ${APP_PORT}:3000
-    depends_on:
-      - db
-    links:
-      - db
-      - phpmyadmin
-    command: npm run start:prod
+      - ${AUTH_PORT}:3000
     volumes:
-      - .:/usr/src/app
-      - ./node_modules:/usr/src/app/node_modules
-      - ./dist:/usr/src/app/dist
+      - ./auth-service:/app/
+    environment:
+      JWT_SECRET: ${JWT_SECRET}
 
   db:
     image: library/mysql:${MYSQL_VERSION}

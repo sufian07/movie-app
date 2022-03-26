@@ -8,13 +8,16 @@ import {
 } from 'typeorm';
 
 @Entity()
-@Index(['title', 'released', 'genre', 'director'], { unique: true })
+@Index(['title', 'released', 'director', 'userId'], { unique: true })
 export class Movie {
   @PrimaryGeneratedColumn()
   id: number;
 
   @Column()
   title: string;
+
+  @Column()
+  userId: number;
 
   @Column('datetime')
   released: Date;
