@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { Payload } from 'src/auth/interfaces/payload.interface';
 import { Repository } from 'typeorm';
 import { CreateDto } from '../dto/movies.dto';
 import { OmdbDto } from '../dto/omdb.dto';
@@ -14,29 +15,28 @@ export class MoviesService {
     private readonly movieRepository: Repository<Movie>,
   ) {}
 
-  async create(dto: CreateDto): Promise<Movie> {
+  async create(user: Payload, dto: CreateDto): Promise<Movie> {
+    const { userId } = user;
     const movie: OmdbDto = await this.omdbService.get(dto.title);
     let createdMovie: Movie;
-    const {
-      Title: title,
-      Released: released,
-      Genre: genre,
-      Director: director,
-    } = movie;
+    const { Title: title, Released, Genre: genre, Director: director } = movie;
+    const released = new Date(Released);
     createdMovie = await this.movieRepository.findOne({
       where: {
         title,
-        released: new Date(released),
+        released,
         genre,
         director,
+        userId,
       },
     });
     if (!createdMovie) {
       createdMovie = await this.movieRepository.save({
         title,
-        released: new Date(released),
+        released,
         genre,
         director,
+        userId,
       });
     }
     return createdMovie;
