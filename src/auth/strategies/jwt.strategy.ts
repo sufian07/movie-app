@@ -6,15 +6,15 @@ import { Payload } from '../interfaces/payload.interface';
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
-  constructor(private readonly config: ConfigService) {
-    super({
-      jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
-      ignoreExpiration: false,
-      secretOrKey: config.get('JWT_SECRET'),
-    });
-  }
+    constructor(private readonly config: ConfigService) {
+        super({
+            jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+            ignoreExpiration: false,
+            secretOrKey: config.get('JWT_SECRET'),
+        });
+    }
 
-  async validate(payload: Payload): Promise<Payload> {
-    return payload;
-  }
+    async validate(payload: Payload): Promise<Payload> {
+        return payload;
+    }
 }
