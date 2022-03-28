@@ -4,7 +4,7 @@ export const getMockUser = (): Payload => {
     return {
         userId: 123,
         name: 'Test',
-        role: 'string',
+        role: 'basic',
         iat: 4556,
         exp: 4455,
         iss: 'string',
