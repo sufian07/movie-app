@@ -1,5 +1,5 @@
 export class ConfigServiceMock {
-    get() {
-        return '';
+    get(key: string) {
+        return `mock_${key}`;
     }
 }
