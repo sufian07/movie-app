@@ -1,5 +1,5 @@
 import { Body, Controller, Get, Post, Req, UseGuards } from '@nestjs/common';
-import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guards';
+import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guards';
 import { CreateDto } from '../dto/movies.dto';
 import { Movie } from '../entities/movie.entity';
 import { MoviesService } from '../services/movies.service';
